@@ -1,4 +1,11 @@
 #ssh -i /Users/scallercell_2/Desktop/cosyvoice root@69.30.85.218 -p 22169
+#python3 server.py --port 8888 --model_dir ../../../pretrained_models/CosyVoice2-0.5B
+#podid - https://hmwecuisc92c1a-8888.proxy.runpod.net
+
+  
+
+
+
 import sys
 sys.path.append('third_party/Matcha-TTS')
 from cosyvoice.cli.cosyvoice import CosyVoice, CosyVoice2

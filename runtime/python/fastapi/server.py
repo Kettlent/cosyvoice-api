@@ -21,6 +21,11 @@ from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import numpy as np
+from fastapi.responses import Response
+import io
+import wave
+
+
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append('{}/../../..'.format(ROOT_DIR))
 sys.path.append('{}/../../../third_party/Matcha-TTS'.format(ROOT_DIR))
@@ -56,6 +61,51 @@ async def inference_zero_shot(tts_text: str = Form(), prompt_text: str = Form(),
     prompt_speech_16k = load_wav(prompt_wav.file, 16000)
     model_output = cosyvoice.inference_zero_shot(tts_text, prompt_text, prompt_speech_16k)
     return StreamingResponse(generate_data(model_output))
+
+
+
+@app.post("/tts_zero_shot")
+async def tts_zero_shot(
+    tts_text: str = Form(...),
+    prompt_text: str = Form(...),
+    prompt_wav: UploadFile = File(...)
+):
+    # Load prompt audio (16 kHz required)
+    prompt_speech_16k = load_wav(prompt_wav.file, 16000)
+
+    # Run zero-shot inference (non-streaming)
+    model_output = list(cosyvoice.inference_zero_shot(
+        tts_text,
+        prompt_text,
+        prompt_speech_16k,
+        stream=False
+    ))
+
+    # Combine all chunks
+    audio = np.concatenate([chunk["tts_speech"] for chunk in model_output], axis=-1)
+
+    # Convert float -> int16 PCM
+    pcm16 = (audio.numpy() * (2 ** 15)).astype(np.int16)
+
+    # Write WAV header into memory
+    buffer = io.BytesIO()
+    with wave.open(buffer, 'wb') as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)  # int16 = 2 bytes
+        wav_file.setframerate(16000)
+        wav_file.writeframes(pcm16.tobytes())
+
+    buffer.seek(0)
+
+    # Return WAV file
+    return Response(
+        content=buffer.read(),
+        media_type="audio/wav",
+        headers={
+            "Content-Disposition": 'attachment; filename="tts.wav"'
+        }
+    )
+
 
 
 @app.get("/inference_cross_lingual")
