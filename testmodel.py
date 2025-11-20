@@ -1,3 +1,4 @@
+#ssh -i /Users/scallercell_2/Desktop/cosyvoice root@69.30.85.218 -p 22169
 import sys
 sys.path.append('third_party/Matcha-TTS')
 from cosyvoice.cli.cosyvoice import CosyVoice, CosyVoice2
