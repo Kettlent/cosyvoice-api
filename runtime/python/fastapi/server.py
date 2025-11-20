@@ -70,34 +70,35 @@ async def tts_zero_shot(
     prompt_text: str = Form(...),
     prompt_wav: UploadFile = File(...)
 ):
-    # Load prompt audio (16 kHz required)
+    # Load prompt audio (16kHz required)
     prompt_speech_16k = load_wav(prompt_wav.file, 16000)
 
     # Run zero-shot inference (non-streaming)
-    model_output = list(cosyvoice.inference_zero_shot(
-        tts_text,
-        prompt_text,
-        prompt_speech_16k,
-        stream=False
-    ))
+    model_output = list(
+        cosyvoice.inference_zero_shot(
+            tts_text,
+            prompt_text,
+            prompt_speech_16k,
+            stream=False
+        )
+    )
 
-    # Combine all chunks
+    # Combine all chunks of generated audio
     audio = np.concatenate([chunk["tts_speech"] for chunk in model_output], axis=-1)
 
-    # Convert float -> int16 PCM
-    pcm16 = (audio.numpy() * (2 ** 15)).astype(np.int16)
+    # Convert float [-1,1] → PCM int16
+    pcm16 = (audio * (2 ** 15)).astype(np.int16)
 
-    # Write WAV header into memory
+    # Write WAV in memory
     buffer = io.BytesIO()
-    with wave.open(buffer, 'wb') as wav_file:
-        wav_file.setnchannels(1)
-        wav_file.setsampwidth(2)  # int16 = 2 bytes
-        wav_file.setframerate(16000)
+    with wave.open(buffer, "wb") as wav_file:
+        wav_file.setnchannels(1)           # mono
+        wav_file.setsampwidth(2)           # int16 → 2 bytes
+        wav_file.setframerate(16000)       # 16kHz
         wav_file.writeframes(pcm16.tobytes())
 
     buffer.seek(0)
 
-    # Return WAV file
     return Response(
         content=buffer.read(),
         media_type="audio/wav",
@@ -105,6 +106,7 @@ async def tts_zero_shot(
             "Content-Disposition": 'attachment; filename="tts.wav"'
         }
     )
+
 
 
 

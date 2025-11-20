@@ -2,7 +2,12 @@
 #python3 server.py --port 8888 --model_dir ../../../pretrained_models/CosyVoice2-0.5B
 #podid - https://hmwecuisc92c1a-8888.proxy.runpod.net
 
-  
+#   curl -X POST "https://hmwecuisc92c1a-8888.proxy.runpod.net/tts_zero_shot" \
+#   -F "tts_text=Hello from CosyVoice on Runpod" \
+#   -F "prompt_text=希望你以后能够做的比我还好呦。" \
+#   -F "prompt_wav=@/Users/scallercell_2/CosyVoice/asset/zero_shot_prompt.wav" \
+#   --output result.wav
+
 
 
 
