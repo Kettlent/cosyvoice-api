@@ -11,9 +11,9 @@ print(cosyvoice.__dict__.keys())
 print(cosyvoice.some_model)
 # NOTE if you want to reproduce the results on https://funaudiollm.github.io/cosyvoice2, please add text_frontend=False during inference
 # zero_shot usage
-# prompt_speech_16k = load_wav('./asset/Snowflake.wav', 16000)
-# for i, j in enumerate(cosyvoice.inference_zero_shot('testing audio， for video app [laughter]   ，it is working right', '', prompt_speech_16k, stream=False)):
-#     torchaudio.save('zero_shot_testin_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
+prompt_speech_16k = load_wav('./asset/Snowflake.wav', 16000)
+for i, j in enumerate(cosyvoice.inference_zero_shot('testing audio， for video app [laughter]   ，it is working right', '', prompt_speech_16k, stream=False)):
+    torchaudio.save('zero_shot_testin_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
 
 # save zero_shot spk for future usage
 # assert cosyvoice.add_zero_shot_spk('', prompt_speech_16k, 'my_zero_shot_spk') is True
