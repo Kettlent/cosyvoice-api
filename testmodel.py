@@ -6,6 +6,8 @@
 
 #ssh -i /Users/scallercell_2/Desktop/cosyvoice root@69.30.85.167 -p 22003 
 
+#ssh root@69.30.85.191 -p 22129 -i ~/.ssh/id_ed25519
+
 # cd /workspace
 # wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
 # bash miniconda.sh -b -p /workspace/miniconda
@@ -35,7 +37,7 @@
 #   -F "prompt_wav=@/Users/scallercell_2/CosyVoice/asset/zero_shot_prompt.wav" \
 #   --output result.wav
 
-
+#python3 server.py --port 8888 --model_dir /workspace/cosyvoice-api/pretrained_models/Fun-CosyVoice3-0.5B
 
 
 import sys
@@ -44,7 +46,7 @@ from cosyvoice.cli.cosyvoice import CosyVoice, CosyVoice2
 from cosyvoice.utils.file_utils import load_wav
 import torchaudio
 
-cosyvoice = CosyVoice2('pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, load_vllm=False, fp16=False)
+cosyvoice = CosyVoice2('pretrained_models/Fun-CosyVoice3-0.5B', load_jit=False, load_trt=False, load_vllm=False, fp16=False)
 
 
 print(cosyvoice.__dict__.keys())
