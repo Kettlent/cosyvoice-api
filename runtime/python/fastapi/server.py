@@ -109,66 +109,66 @@ async def tts_zero_shot(
         }
     )
 
-@app.post("/inference_cross_lingual")
-async def inference_cross_lingual(
-    tts_text: str = Form(...),
-    prompt_wav: UploadFile = File(...)
-):
-    """
-    Cross-lingual TTS using a reference voice.
-    Accepts ANY audio format and normalizes to PCM WAV.
-    """
-
-    # 1. Create temp WAV path
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as f:
-        prompt_wav_path = f.name
-
-    try:
-        # 2. Decode uploaded audio (mp3/m4a/wav/etc.)
-        waveform, sr = torchaudio.load(prompt_wav.file)
-
-        # 3. Convert to mono
-        if waveform.dim() > 1 and waveform.shape[0] > 1:
-            waveform = waveform.mean(dim=0, keepdim=True)
-
-        # 4. Resample to 24k (CosyVoice default)
-        if sr != 24000:
-            waveform = torchaudio.functional.resample(
-                waveform, sr, 24000
-            )
-
-        # 5. Save REAL PCM WAV
-        torchaudio.save(
-            prompt_wav_path,
-            waveform,
-            24000,
-            encoding="PCM_S",
-            bits_per_sample=16
-        )
-
-        # 6. Run CosyVoice inference
-        model_output = cosyvoice.inference_cross_lingual(
-            tts_text,
-            prompt_wav_path
-        )
-
-        # 7. Stream result
-        return StreamingResponse(
-            generate_data(model_output),
-            media_type="audio/wav"
-        )
-
-    finally:
-        # 8. Cleanup temp file
-        if os.path.exists(prompt_wav_path):
-            os.remove(prompt_wav_path)
-
-# @app.get("/inference_cross_lingual")
 # @app.post("/inference_cross_lingual")
-# async def inference_cross_lingual(tts_text: str = Form(), prompt_wav: UploadFile = File()):
-#     prompt_speech_16k = load_wav(prompt_wav.file, 16000)
-#     model_output = cosyvoice.inference_cross_lingual(tts_text, prompt_speech_16k)
-#     return StreamingResponse(generate_data(model_output))
+# async def inference_cross_lingual(
+#     tts_text: str = Form(...),
+#     prompt_wav: UploadFile = File(...)
+# ):
+#     """
+#     Cross-lingual TTS using a reference voice.
+#     Accepts ANY audio format and normalizes to PCM WAV.
+#     """
+
+#     # 1. Create temp WAV path
+#     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as f:
+#         prompt_wav_path = f.name
+
+#     try:
+#         # 2. Decode uploaded audio (mp3/m4a/wav/etc.)
+#         waveform, sr = torchaudio.load(prompt_wav.file)
+
+#         # 3. Convert to mono
+#         if waveform.dim() > 1 and waveform.shape[0] > 1:
+#             waveform = waveform.mean(dim=0, keepdim=True)
+
+#         # 4. Resample to 24k (CosyVoice default)
+#         if sr != 24000:
+#             waveform = torchaudio.functional.resample(
+#                 waveform, sr, 24000
+#             )
+
+#         # 5. Save REAL PCM WAV
+#         torchaudio.save(
+#             prompt_wav_path,
+#             waveform,
+#             24000,
+#             encoding="PCM_S",
+#             bits_per_sample=16
+#         )
+
+#         # 6. Run CosyVoice inference
+#         model_output = cosyvoice.inference_cross_lingual(
+#             tts_text,
+#             prompt_wav_path
+#         )
+
+#         # 7. Stream result
+#         return StreamingResponse(
+#             generate_data(model_output),
+#             media_type="audio/wav"
+#         )
+
+#     finally:
+#         # 8. Cleanup temp file
+#         if os.path.exists(prompt_wav_path):
+#             os.remove(prompt_wav_path)
+
+@app.get("/inference_cross_lingual")
+@app.post("/inference_cross_lingual")
+async def inference_cross_lingual(tts_text: str = Form(), prompt_wav: UploadFile = File()):
+    prompt_speech_16k = load_wav(prompt_wav.file, 24000)
+    model_output = cosyvoice.inference_cross_lingual(tts_text, prompt_speech_16k)
+    return StreamingResponse(generate_data(model_output))
 
 
 @app.get("/inference_instruct")

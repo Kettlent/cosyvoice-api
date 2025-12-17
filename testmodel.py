@@ -38,6 +38,7 @@
 #   --output result.wav
 
 #python3 server.py --port 8888 --model_dir /workspace/cosyvoice-api/pretrained_models/Fun-CosyVoice3-0.5B
+#scp -P 22129 -i /Users/scallercell_2/Desktop/cosyvoice "/Users/scallercell_2/CosyVoice/asset/zero_shot_prompt.wav" root@69.30.85.191:/workspace/cosyvoice-api/asset
 
 
 import sys
