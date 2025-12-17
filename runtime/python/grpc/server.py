@@ -18,6 +18,7 @@ import argparse
 import cosyvoice_pb2
 import cosyvoice_pb2_grpc
 import logging
+from cosyvoice.cli.cosyvoice import CosyVoice , CosyVoice2 , CosyVoice3
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 import grpc
 import torch
@@ -39,7 +40,10 @@ class CosyVoiceServiceImpl(cosyvoice_pb2_grpc.CosyVoiceServicer):
             try:
                 self.cosyvoice = CosyVoice2(args.model_dir, trt_concurrent=args.max_conc)
             except Exception:
-                raise TypeError('no valid model_type!')
+                try:
+                    self.cosyvoice = CosyVoice3(args.model_dir, trt_concurrent=args.max_conc)
+                except Exception:
+                    raise TypeError('no valid model_type!')
         logging.info('grpc service initialized')
 
     def Inference(self, request, context):
