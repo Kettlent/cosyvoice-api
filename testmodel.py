@@ -6,7 +6,7 @@
 
 #ssh -i /Users/scallercell_2/Desktop/cosyvoice root@69.30.85.167 -p 22003 
 
-#ssh root@69.30.85.191 -p 22129 -i ~/.ssh/id_ed25519
+#ssh root@69.30.85.191 -p 22129 -i /Users/scallercell_2/Desktop/cosyvoice
 
 # cd /workspace
 # wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
