@@ -15,7 +15,7 @@ import os
 import sys
 import argparse
 import logging
-from cosyvoice.cli.cosyvoice import CosyVoice , CosyVoice2 , CosyVoice3
+
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 from fastapi import FastAPI, UploadFile, Form, File
 from fastapi.responses import StreamingResponse
@@ -30,7 +30,7 @@ import wave
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append('{}/../../..'.format(ROOT_DIR))
 sys.path.append('{}/../../../third_party/Matcha-TTS'.format(ROOT_DIR))
-from cosyvoice.cli.cosyvoice import CosyVoice, CosyVoice2
+from cosyvoice.cli.cosyvoice import CosyVoice, CosyVoice2 , CosyVoice3
 from cosyvoice.utils.file_utils import load_wav
 
 app = FastAPI()
@@ -153,5 +153,5 @@ if __name__ == '__main__':
             try:
                 cosyvoice = CosyVoice3(args.model_dir)
             except Exception:
-              raise TypeError('no valid model_type!')
+               raise TypeError('no valid model_type!')
     uvicorn.run(app, host="0.0.0.0", port=args.port)
