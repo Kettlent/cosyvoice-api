@@ -39,7 +39,7 @@
 
 #python3 server.py --port 8888 --model_dir /workspace/cosyvoice-api/pretrained_models/Fun-CosyVoice3-0.5B
 #scp -P 22129 -i /Users/scallercell_2/Desktop/cosyvoice "/Users/scallercell_2/CosyVoice/asset/zero_shot_prompt.wav" root@69.30.85.191:/workspace/cosyvoice-api/asset
-
+#scp -P 22129 -i /Users/scallercell_2/Desktop/cosyvoice root@69.30.85.191:/workspace/cosyvoice-api/fine_grained_control_0.wav /Users/scallercell_2/Downloads/
 
 import sys
 sys.path.append('third_party/Matcha-TTS')
@@ -121,7 +121,7 @@ def cosyvoice3_example():
     #     torchaudio.save('zero_shot_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
 
     # fine grained control, for supported control, check cosyvoice/tokenizer/tokenizer.py#L280
-    for i, j in enumerate(cosyvoice.inference_cross_lingual('You are a helpful assistant.<|endofprompt|>[breath]因为他们那一辈人[breath]在乡里面住的要习惯一点，[breath]邻居都很活络，[breath]嗯，都很熟悉。[breath]',
+    for i, j in enumerate(cosyvoice.inference_cross_lingual('You are a helpful assistant. You are a helpful assistant. You are a helpful assistant. You are a helpful assistant.',
                                                             './asset/conan.wav', stream=False)):
         torchaudio.save('fine_grained_control_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
 
