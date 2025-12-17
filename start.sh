@@ -6,7 +6,7 @@
 
 LOG_FILE="/workspace/cosyvoice.log"
 ENV_NAME="cosyvoice"
-MODEL_DIR="/workspace/cosyvoice-api/pretrained_models/CosyVoice2-0.5B"
+MODEL_DIR="/workspace/cosyvoice-api/pretrained_models/Fun-CosyVoice3-0.5B"
 SERVER_DIR="/workspace/cosyvoice-api/runtime/python/fastapi"
 PORT=8888
 
