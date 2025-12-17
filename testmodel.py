@@ -2,6 +2,33 @@
 #python3 server.py --port 8888 --model_dir ../../../pretrained_models/CosyVoice2-0.5B
 #podid - https://hmwecuisc92c1a-8888.proxy.runpod.net
 
+#ssh -i /Users/scallercell_2/Desktop/cosyvoice root@74.2.96.22 -p 15815 
+
+#ssh -i /Users/scallercell_2/Desktop/cosyvoice root@69.30.85.167 -p 22003 
+
+# cd /workspace
+# wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+# bash miniconda.sh -b -p /workspace/miniconda
+#source /workspace/miniconda/etc/profile.d/conda.sh
+
+
+# conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
+# conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+
+# conda create -y -n cosyvoice python=3.10
+# conda activate cosyvoice
+
+#echo "source /workspace/miniconda/etc/profile.d/conda.sh" >> ~/.bashrc
+
+# pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com
+
+
+#chmod +x /workspace/start.sh
+# bash /workspace/start.sh
+# tail -50 /workspace/cosyvoice.log
+
+
+
 #   curl -X POST "https://hmwecuisc92c1a-8888.proxy.runpod.net/tts_zero_shot" \
 #   -F "tts_text=Hello from CosyVoice on Runpod" \
 #   -F "prompt_text=希望你以后能够做的比我还好呦。" \
