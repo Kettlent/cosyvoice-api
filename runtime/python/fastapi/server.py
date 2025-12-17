@@ -182,9 +182,23 @@ async def inference_instruct(tts_text: str = Form(), spk_id: str = Form(), instr
 @app.post("/inference_instruct2")
 async def inference_instruct2(tts_text: str = Form(), instruct_text: str = Form(), prompt_wav: UploadFile = File()):
     # prompt_speech_16k = load_wav(prompt_wav.file, 48000)
-    speech, sample_rate = torchaudio.load(prompt_wav, backend='soundfile')
-    speech = speech.mean(dim=0, keepdim=True)
-    model_output = cosyvoice.inference_instruct2(tts_text, instruct_text, speech)
+    # speech, sample_rate = torchaudio.load(prompt_wav, backend='soundfile')
+    # speech = speech.mean(dim=0, keepdim=True)
+    filename = prompt_wav.filename or "zero_shot_prompt.wav"
+    asset_wav_path = os.path.join('/workspace/cosyvoice-api/asset/', filename)
+
+    with open(asset_wav_path, "wb") as f:
+        f.write(await prompt_wav.read())
+
+    # -----------------------------------
+    # 2️⃣ Pass FILE PATH to CosyVoice
+    # -----------------------------------
+    model_output = cosyvoice.inference_instruct2(
+        tts_text,
+        instruct_text,
+        asset_wav_path   # ✅ EXACTLY like official example
+    )
+   # model_output = cosyvoice.inference_instruct2(tts_text, instruct_text, speech)
     return StreamingResponse(generate_data(model_output))
 
 
