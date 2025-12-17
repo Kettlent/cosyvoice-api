@@ -15,6 +15,7 @@ import os
 import sys
 import argparse
 import logging
+from cosyvoice.cli.cosyvoice import CosyVoice , CosyVoice2 , CosyVoice3
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 from fastapi import FastAPI, UploadFile, Form, File
 from fastapi.responses import StreamingResponse
@@ -149,5 +150,8 @@ if __name__ == '__main__':
         try:
             cosyvoice = CosyVoice2(args.model_dir)
         except Exception:
-            raise TypeError('no valid model_type!')
+            try:
+                cosyvoice = CosyVoice3(args.model_dir)
+            except Exception:
+              raise TypeError('no valid model_type!')
     uvicorn.run(app, host="0.0.0.0", port=args.port)
