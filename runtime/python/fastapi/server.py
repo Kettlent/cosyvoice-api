@@ -25,7 +25,7 @@ import numpy as np
 from fastapi.responses import Response
 import io
 import wave
-
+import tempfile
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append('{}/../../..'.format(ROOT_DIR))
@@ -108,15 +108,43 @@ async def tts_zero_shot(
         }
     )
 
-
-
-
-@app.get("/inference_cross_lingual")
 @app.post("/inference_cross_lingual")
-async def inference_cross_lingual(tts_text: str = Form(), prompt_wav: UploadFile = File()):
-    prompt_speech_16k = load_wav(prompt_wav.file, 16000)
-    model_output = cosyvoice.inference_cross_lingual(tts_text, prompt_speech_16k)
-    return StreamingResponse(generate_data(model_output))
+async def inference_cross_lingual(
+    tts_text: str = Form(...),
+    prompt_wav: UploadFile = File(...)
+):
+    # 1. Save uploaded audio to a temp WAV file
+    suffix = os.path.splitext(prompt_wav.filename or "")[1] or ".wav"
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as f:
+        f.write(await prompt_wav.read())
+        prompt_wav_path = f.name
+
+    try:
+        # 2. Pass FILE PATH (not tensor!) to CosyVoice
+        model_output = cosyvoice.inference_cross_lingual(
+            tts_text,
+            prompt_wav_path
+        )
+
+        # 3. Stream output (same as demo)
+        return StreamingResponse(
+            generate_data(model_output),
+            media_type="audio/wav"
+        )
+
+    finally:
+        # 4. Cleanup temp file
+        if os.path.exists(prompt_wav_path):
+            os.remove(prompt_wav_path)
+
+
+# @app.get("/inference_cross_lingual")
+# @app.post("/inference_cross_lingual")
+# async def inference_cross_lingual(tts_text: str = Form(), prompt_wav: UploadFile = File()):
+#     prompt_speech_16k = load_wav(prompt_wav.file, 16000)
+#     model_output = cosyvoice.inference_cross_lingual(tts_text, prompt_speech_16k)
+#     return StreamingResponse(generate_data(model_output))
 
 
 @app.get("/inference_instruct")
