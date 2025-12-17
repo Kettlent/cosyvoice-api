@@ -166,8 +166,12 @@ async def tts_zero_shot(
 @app.get("/inference_cross_lingual")
 @app.post("/inference_cross_lingual")
 async def inference_cross_lingual(tts_text: str = Form(), prompt_wav: UploadFile = File()):
-    prompt_speech_16k = load_wav(prompt_wav.file, 24000)
-    model_output = cosyvoice.inference_cross_lingual(tts_text, prompt_speech_16k)
+    filename = prompt_wav.filename or "zero_shot_prompt.wav"
+    asset_wav_path = os.path.join('/workspace/cosyvoice-api/asset/', filename)
+
+    with open(asset_wav_path, "wb") as f:
+        f.write(await prompt_wav.read())
+    model_output = cosyvoice.inference_cross_lingual(tts_text, asset_wav_path)
     return StreamingResponse(generate_data(model_output))
 
 
