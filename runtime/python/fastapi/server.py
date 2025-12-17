@@ -26,6 +26,7 @@ from fastapi.responses import Response
 import io
 import wave
 import tempfile
+import torchaudio
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append('{}/../../..'.format(ROOT_DIR))
@@ -113,31 +114,54 @@ async def inference_cross_lingual(
     tts_text: str = Form(...),
     prompt_wav: UploadFile = File(...)
 ):
-    # 1. Save uploaded audio to a temp WAV file
-    suffix = os.path.splitext(prompt_wav.filename or "")[1] or ".wav"
+    """
+    Cross-lingual TTS using a reference voice.
+    Accepts ANY audio format and normalizes to PCM WAV.
+    """
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as f:
-        f.write(await prompt_wav.read())
+    # 1. Create temp WAV path
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as f:
         prompt_wav_path = f.name
 
     try:
-        # 2. Pass FILE PATH (not tensor!) to CosyVoice
+        # 2. Decode uploaded audio (mp3/m4a/wav/etc.)
+        waveform, sr = torchaudio.load(prompt_wav.file)
+
+        # 3. Convert to mono
+        if waveform.dim() > 1 and waveform.shape[0] > 1:
+            waveform = waveform.mean(dim=0, keepdim=True)
+
+        # 4. Resample to 24k (CosyVoice default)
+        if sr != 24000:
+            waveform = torchaudio.functional.resample(
+                waveform, sr, 24000
+            )
+
+        # 5. Save REAL PCM WAV
+        torchaudio.save(
+            prompt_wav_path,
+            waveform,
+            24000,
+            encoding="PCM_S",
+            bits_per_sample=16
+        )
+
+        # 6. Run CosyVoice inference
         model_output = cosyvoice.inference_cross_lingual(
             tts_text,
             prompt_wav_path
         )
 
-        # 3. Stream output (same as demo)
+        # 7. Stream result
         return StreamingResponse(
             generate_data(model_output),
             media_type="audio/wav"
         )
 
     finally:
-        # 4. Cleanup temp file
+        # 8. Cleanup temp file
         if os.path.exists(prompt_wav_path):
             os.remove(prompt_wav_path)
-
 
 # @app.get("/inference_cross_lingual")
 # @app.post("/inference_cross_lingual")
