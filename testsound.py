@@ -1,6 +1,6 @@
 import soundfile as sf
 
-path = "./asset/zero_shot_prompt.wav"
+path = "./asset/conan.wav"
 
 try:
     data, sr = sf.read(path)
