@@ -35,7 +35,7 @@ logging.basicConfig(level=logging.DEBUG,
 class CosyVoiceServiceImpl(cosyvoice_pb2_grpc.CosyVoiceServicer):
     def __init__(self, args):
         try:
-            self.cosyvoice = CosyVoice(args.model_dir, trt_concurrent=args.max_conc)
+            self.cosyvoice = CosyVoice3(args.model_dir, trt_concurrent=args.max_conc)
         except Exception:
             try:
                 self.cosyvoice = CosyVoice2(args.model_dir, trt_concurrent=args.max_conc)
