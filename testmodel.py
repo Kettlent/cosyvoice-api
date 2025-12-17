@@ -129,7 +129,7 @@ def cosyvoice3_example():
     # for i, j in enumerate(cosyvoice.inference_instruct2('好少咯，一般系放嗰啲国庆啊，中秋嗰啲可能会咯。', 'You are a helpful assistant. 请用广东话表达。<|endofprompt|>',
     #                                                     './asset/cross_lingual_prompt.wav', stream=False)):
     #     torchaudio.save('instruct_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
-    for i, j in enumerate(cosyvoice.inference_instruct2('Her handwriting is very neat, which suggests she likes things tidy. You are a helpful assistant. You are a helpful assistant.', 'You are a helpful assistant. 请用尽可能快地语速说一句话。<|endofprompt|>',
+    for i, j in enumerate(cosyvoice.inference_instruct2('We are testing fun cosyvoice with conan audio . i think it is working but it is using some other function . i have to find other way', 'You are a helpful assistant. 请用尽可能快地语速说一句话。<|endofprompt|>',
                                                         './asset/conan.wav', stream=False)):
         torchaudio.save('instruct_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
 
