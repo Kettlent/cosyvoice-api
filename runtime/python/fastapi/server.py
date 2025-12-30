@@ -206,6 +206,56 @@ async def inference_instruct2(tts_text: str = Form(), instruct_text: str = Form(
     return StreamingResponse(generate_data(model_output))
 
 
+def generate_wav_audio(model_output, sample_rate=22050):
+    audio_np = []
+
+    for i in model_output:
+        audio_np.append(i['tts_speech'].numpy())
+
+    audio = np.concatenate(audio_np)
+    audio_int16 = (audio * (2 ** 15)).astype(np.int16)
+
+    buffer = io.BytesIO()
+    with wave.open(buffer, "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)  # 16-bit
+        wf.setframerate(sample_rate)
+        wf.writeframes(audio_int16.tobytes())
+
+    buffer.seek(0)
+    return buffer.read()
+
+@app.get("/inference_instruct3")
+@app.post("/inference_instruct3")
+async def inference_instruct3(tts_text: str = Form(), instruct_text: str = Form(), prompt_wav: UploadFile = File()):
+    # prompt_speech_16k = load_wav(prompt_wav.file, 48000)
+    # speech, sample_rate = torchaudio.load(prompt_wav, backend='soundfile')
+    # speech = speech.mean(dim=0, keepdim=True)
+    filename = prompt_wav.filename or "zero_shot_prompt.wav"
+    asset_wav_path = os.path.join('/workspace/cosyvoice-api/asset/', filename)
+
+    with open(asset_wav_path, "wb") as f:
+        f.write(await prompt_wav.read())
+
+    # -----------------------------------
+    # 2️⃣ Pass FILE PATH to CosyVoice
+    # -----------------------------------
+    model_output = cosyvoice.inference_instruct2(
+        tts_text,
+        instruct_text,
+        asset_wav_path   # ✅ EXACTLY like official example
+    )
+    wav_bytes = generate_wav_audio(model_output)
+   # model_output = cosyvoice.inference_instruct2(tts_text, instruct_text, speech)
+    return Response(
+        content=wav_bytes,
+        media_type="audio/wav",
+        headers={
+            "Content-Disposition": "attachment; filename=tts.wav"
+        }
+    )
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--port',
