@@ -151,28 +151,27 @@ def main():
                     预训练模型 [CosyVoice-300M](https://www.modelscope.cn/models/iic/CosyVoice-300M) \
                     [CosyVoice-300M-Instruct](https://www.modelscope.cn/models/iic/CosyVoice-300M-Instruct) \
                     [CosyVoice-300M-SFT](https://www.modelscope.cn/models/iic/CosyVoice-300M-SFT)")
-        gr.Markdown("#### 请输入需要合成的文本，选择推理模式，并按照提示步骤进行操作")
+        gr.Markdown("#### Please enter the text to be synthesized, select an inference mode, ""and follow the instructions step by step")
 
-        tts_text = gr.Textbox(label="输入合成文本", lines=1, value="我是通义实验室语音团队全新推出的生成式语音大模型，提供舒适自然的语音合成能力。")
+        tts_text = gr.Textbox(label="Input Text for Synthesis",lines=1,value="I am a new generative speech model launched by the Tongyi Lab speech team, delivering comfortable and natural text-to-speech synthesis.")
         with gr.Row():
-            mode_checkbox_group = gr.Radio(choices=inference_mode_list, label='选择推理模式', value=inference_mode_list[0])
-            instruction_text = gr.Text(label="操作步骤", value=instruct_dict[inference_mode_list[0]], scale=0.5)
-            sft_dropdown = gr.Dropdown(choices=sft_spk, label='选择预训练音色', value=sft_spk[0], scale=0.25)
-            stream = gr.Radio(choices=stream_mode_list, label='是否流式推理', value=stream_mode_list[0][1])
-            speed = gr.Number(value=1, label="速度调节(仅支持非流式推理)", minimum=0.5, maximum=2.0, step=0.1)
+            mode_checkbox_group = gr.Radio(choices=inference_mode_list, label="Select Inference Mode", value=inference_mode_list[0])
+            instruction_text = gr.Text(label="Steps", value=instruct_dict[inference_mode_list[0]], scale=0.5)
+            sft_dropdown = gr.Dropdown(choices=sft_spk, label="Select Pretrained Voice", value=sft_spk[0], scale=0.25)
+            stream = gr.Radio(choices=stream_mode_list, label="Streaming Inference", value=stream_mode_list[0][1])
+            speed = gr.Number(value=1, label="Speed Control (Non-streaming only)", minimum=0.5, maximum=2.0, step=0.1)
             with gr.Column(scale=0.25):
-                seed_button = gr.Button(value="\U0001F3B2")
-                seed = gr.Number(value=0, label="随机推理种子")
+                seed_button = gr.Button(value="🎲")
+                seed = gr.Number(value=0, label="Random Inference Seed")
 
         with gr.Row():
-            prompt_wav_upload = gr.Audio(sources='upload', type='filepath', label='选择prompt音频文件，注意采样率不低于16khz')
-            prompt_wav_record = gr.Audio(sources='microphone', type='filepath', label='录制prompt音频文件')
-        prompt_text = gr.Textbox(label="输入prompt文本", lines=1, placeholder="请输入prompt文本，需与prompt音频内容一致，暂时不支持自动识别...", value='')
-        instruct_text = gr.Textbox(label="输入instruct文本", lines=1, placeholder="请输入instruct文本.", value='')
+            prompt_wav_upload = gr.Audio(sources="upload", type="filepath", label="Select prompt audio file (sample rate ≥ 16kHz)")
+            prompt_wav_record = gr.Audio(sources="microphone", type="filepath", label="Record prompt audio")
+        prompt_text = gr.Textbox(label="Enter Prompt Text", lines=1, placeholder="Enter prompt text (must match the prompt audio content; automatic recognition not supported yet)...", value="")
+        instruct_text = gr.Textbox(label="Enter Instruction Text", lines=1, placeholder="Enter instruction text.", value="")
 
-        generate_button = gr.Button("生成音频")
-
-        audio_output = gr.Audio(label="合成音频", autoplay=True, streaming=True)
+        generate_button = gr.Button("Generate Audio")
+        audio_output = gr.Audio(label="Synthesized Audio", autoplay=True, streaming=True)
 
         seed_button.click(generate_seed, inputs=[], outputs=seed)
         generate_button.click(generate_audio,
