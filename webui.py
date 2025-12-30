@@ -26,11 +26,41 @@ from cosyvoice.cli.cosyvoice import AutoModel
 from cosyvoice.utils.file_utils import logging
 from cosyvoice.utils.common import set_all_random_seed
 
-inference_mode_list = ['预训练音色', '3s极速复刻', '跨语种复刻', '自然语言控制']
-instruct_dict = {'预训练音色': '1. 选择预训练音色\n2. 点击生成音频按钮',
-                 '3s极速复刻': '1. 选择prompt音频文件，或录入prompt音频，注意不超过30s，若同时提供，优先选择prompt音频文件\n2. 输入prompt文本\n3. 点击生成音频按钮',
-                 '跨语种复刻': '1. 选择prompt音频文件，或录入prompt音频，注意不超过30s，若同时提供，优先选择prompt音频文件\n2. 点击生成音频按钮',
-                 '自然语言控制': '1. 选择预训练音色\n2. 输入instruct文本\n3. 点击生成音频按钮'}
+# inference_mode_list = ['预训练音色', '3s极速复刻', '跨语种复刻', '自然语言控制']
+# instruct_dict = {'预训练音色': '1. 选择预训练音色\n2. 点击生成音频按钮',
+#                  '3s极速复刻': '1. 选择prompt音频文件，或录入prompt音频，注意不超过30s，若同时提供，优先选择prompt音频文件\n2. 输入prompt文本\n3. 点击生成音频按钮',
+#                  '跨语种复刻': '1. 选择prompt音频文件，或录入prompt音频，注意不超过30s，若同时提供，优先选择prompt音频文件\n2. 点击生成音频按钮',
+#                  '自然语言控制': '1. 选择预训练音色\n2. 输入instruct文本\n3. 点击生成音频按钮'}
+
+
+inference_mode_list = [
+    'Pretrained Voice',
+    '3s Instant Voice Cloning',
+    'Cross-Language Voice Cloning',
+    'Natural Language Control'
+]
+
+instruct_dict = {
+    'Pretrained Voice':
+        '1. Select a pretrained voice\n'
+        '2. Click the Generate Audio button',
+
+    '3s Instant Voice Cloning':
+        '1. Select a prompt audio file or record a prompt audio (must be within 30 seconds). '
+        'If both are provided, the prompt audio file will be used first\n'
+        '2. Enter the prompt text\n'
+        '3. Click the Generate Audio button',
+
+    'Cross-Language Voice Cloning':
+        '1. Select a prompt audio file or record a prompt audio (must be within 30 seconds). '
+        'If both are provided, the prompt audio file will be used first\n'
+        '2. Click the Generate Audio button',
+
+    'Natural Language Control':
+        '1. Select a pretrained voice\n'
+        '2. Enter the instruction text\n'
+        '3. Click the Generate Audio button'
+}
 stream_mode_list = [('否', False), ('是', True)]
 max_val = 0.8
 
