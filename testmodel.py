@@ -2,11 +2,9 @@
 #python3 server.py --port 8888 --model_dir ../../../pretrained_models/CosyVoice2-0.5B
 #podid - https://hmwecuisc92c1a-8888.proxy.runpod.net
 
-#ssh -i /Users/scallercell_2/Desktop/cosyvoice root@74.2.96.22 -p 15815 
 
-#ssh -i /Users/scallercell_2/Desktop/cosyvoice root@69.30.85.167 -p 22003 
+#ssh root@69.30.85.239 -p 22136 -i /Users/scallercell_2/Desktop/cosyvoice
 
-#ssh root@69.30.85.191 -p 22129 -i /Users/scallercell_2/Desktop/cosyvoice
 
 # cd /workspace
 # wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
@@ -40,6 +38,8 @@
 #python3 server.py --port 8888 --model_dir /workspace/cosyvoice-api/pretrained_models/Fun-CosyVoice3-0.5B
 #scp -P 22129 -i /Users/scallercell_2/Desktop/cosyvoice "/Users/scallercell_2/CosyVoice/asset/zero_shot_prompt.wav" root@69.30.85.191:/workspace/cosyvoice-api/asset
 #scp -P 22129 -i /Users/scallercell_2/Desktop/cosyvoice root@69.30.85.191:/workspace/cosyvoice-api/fine_grained_control_0.wav /Users/scallercell_2/Downloads/
+
+
 
 import sys
 sys.path.append('third_party/Matcha-TTS')
