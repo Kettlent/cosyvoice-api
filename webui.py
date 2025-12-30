@@ -61,7 +61,7 @@ instruct_dict = {
         '2. Enter the instruction text\n'
         '3. Click the Generate Audio button'
 }
-stream_mode_list = [('否', False), ('是', True)]
+stream_mode_list = [("No", False), ("Yes", True)]
 max_val = 0.8
 
 
