@@ -209,16 +209,19 @@ async def inference_instruct2(
     filename = prompt_wav.filename or "zero_shot_prompt.wav"
     asset_wav_path = os.path.join("/workspace/cosyvoice-api/asset", filename)
 
+    # ✅ READ ONCE — BEFORE streaming
+    prompt_bytes = await prompt_wav.read()
+
     async def pcm_stream_generator():
         try:
-            # 1️⃣ Save prompt wav
+            # 1️⃣ Save prompt wav from cached bytes
             with open(asset_wav_path, "wb") as f:
-                f.write(await prompt_wav.read())
+                f.write(prompt_bytes)
 
             # 2️⃣ Split text
             chunks = chunk_text(tts_text, max_words=200)
 
-            # 3️⃣ Inference + stream per chunk
+            # 3️⃣ Inference + stream
             for chunk in chunks:
                 model_output = cosyvoice.inference_instruct2(
                     chunk,
@@ -226,7 +229,6 @@ async def inference_instruct2(
                     asset_wav_path
                 )
 
-                # 🔥 stream PCM immediately
                 for pcm_chunk in generate_data(model_output):
                     yield pcm_chunk
 
