@@ -200,45 +200,83 @@ async def inference_instruct(tts_text: str = Form(), spk_id: str = Form(), instr
     model_output = cosyvoice.inference_instruct(tts_text, spk_id, instruct_text)
     return StreamingResponse(generate_data(model_output))
 
-
-@app.get("/inference_instruct2")
 @app.post("/inference_instruct2")
-async def inference_instruct2(tts_text: str = Form(), instruct_text: str = Form(), prompt_wav: UploadFile = File()):
-    # prompt_speech_16k = load_wav(prompt_wav.file, 48000)
-    # speech, sample_rate = torchaudio.load(prompt_wav, backend='soundfile')
-    # speech = speech.mean(dim=0, keepdim=True)
+async def inference_instruct2(
+    tts_text: str = Form(...),
+    instruct_text: str = Form(...),
+    prompt_wav: UploadFile = File(...)
+):
     filename = prompt_wav.filename or "zero_shot_prompt.wav"
-    asset_wav_path = os.path.join('/workspace/cosyvoice-api/asset/', filename)
+    asset_wav_path = os.path.join("/workspace/cosyvoice-api/asset", filename)
 
-    with open(asset_wav_path, "wb") as f:
-        f.write(await prompt_wav.read())
+    async def pcm_stream_generator():
+        try:
+            # 1️⃣ Save prompt wav
+            with open(asset_wav_path, "wb") as f:
+                f.write(await prompt_wav.read())
 
-    chunks = chunk_text(tts_text, max_words=200)
+            # 2️⃣ Split text
+            chunks = chunk_text(tts_text, max_words=200)
 
-    pcm_all = []
+            # 3️⃣ Inference + stream per chunk
+            for chunk in chunks:
+                model_output = cosyvoice.inference_instruct2(
+                    chunk,
+                    instruct_text,
+                    asset_wav_path
+                )
 
-            # 3️⃣ Inference loop
-    for chunk in chunks:
-            model_output = cosyvoice.inference_instruct2(
-                chunk,
-                instruct_text,
-                asset_wav_path
-            )
+                # 🔥 stream PCM immediately
+                for pcm_chunk in generate_data(model_output):
+                    yield pcm_chunk
 
-            pcm = collect_pcm(model_output)
-            pcm_all.append(pcm)
+        finally:
+            # 4️⃣ Cleanup
+            if os.path.exists(asset_wav_path):
+                os.remove(asset_wav_path)
 
-    final_pcm = b"".join(pcm_all)
-    # -----------------------------------
-    # 2️⃣ Pass FILE PATH to CosyVoice
-    # -----------------------------------
-    # model_output = cosyvoice.inference_instruct2(
-    #     tts_text,
-    #     instruct_text,
-    #     asset_wav_path   # ✅ EXACTLY like official example
-    # )
-   # model_output = cosyvoice.inference_instruct2(tts_text, instruct_text, speech)
-    return StreamingResponse(iter([final_pcm]))
+    return StreamingResponse(
+        pcm_stream_generator()
+    )
+
+# @app.get("/inference_instruct2")
+# @app.post("/inference_instruct2")
+# async def inference_instruct2(tts_text: str = Form(), instruct_text: str = Form(), prompt_wav: UploadFile = File()):
+#     # prompt_speech_16k = load_wav(prompt_wav.file, 48000)
+#     # speech, sample_rate = torchaudio.load(prompt_wav, backend='soundfile')
+#     # speech = speech.mean(dim=0, keepdim=True)
+#     filename = prompt_wav.filename or "zero_shot_prompt.wav"
+#     asset_wav_path = os.path.join('/workspace/cosyvoice-api/asset/', filename)
+
+#     with open(asset_wav_path, "wb") as f:
+#         f.write(await prompt_wav.read())
+
+#     chunks = chunk_text(tts_text, max_words=200)
+
+#     pcm_all = []
+
+#             # 3️⃣ Inference loop
+#     for chunk in chunks:
+#             model_output = cosyvoice.inference_instruct2(
+#                 chunk,
+#                 instruct_text,
+#                 asset_wav_path
+#             )
+
+#             pcm = collect_pcm(model_output)
+#             pcm_all.append(pcm)
+
+#     final_pcm = b"".join(pcm_all)
+#     # -----------------------------------
+#     # 2️⃣ Pass FILE PATH to CosyVoice
+#     # -----------------------------------
+#     # model_output = cosyvoice.inference_instruct2(
+#     #     tts_text,
+#     #     instruct_text,
+#     #     asset_wav_path   # ✅ EXACTLY like official example
+#     # )
+#    # model_output = cosyvoice.inference_instruct2(tts_text, instruct_text, speech)
+#     return StreamingResponse(iter([final_pcm]))
 
 
 def generate_wav_audio(model_output, sample_rate=22050):
