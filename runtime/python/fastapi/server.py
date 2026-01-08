@@ -200,6 +200,8 @@ async def inference_instruct(tts_text: str = Form(), spk_id: str = Form(), instr
     model_output = cosyvoice.inference_instruct(tts_text, spk_id, instruct_text)
     return StreamingResponse(generate_data(model_output))
 
+
+
 @app.post("/inference_instruct2")
 async def inference_instruct2(
     tts_text: str = Form(...),
@@ -213,7 +215,6 @@ async def inference_instruct2(
     prompt_bytes = await prompt_wav.read()
 
     async def pcm_stream_generator():
-        try:
             # 1️⃣ Save prompt wav from cached bytes
             with open(asset_wav_path, "wb") as f:
                 f.write(prompt_bytes)
@@ -232,11 +233,7 @@ async def inference_instruct2(
                 for pcm_chunk in generate_data(model_output):
                     yield pcm_chunk
 
-        finally:
-            # 4️⃣ Cleanup
-            if os.path.exists(asset_wav_path):
-                os.remove(asset_wav_path)
-
+    
     return StreamingResponse(
         pcm_stream_generator()
     )
