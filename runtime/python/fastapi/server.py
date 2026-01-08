@@ -48,7 +48,26 @@ def generate_data(model_output):
     for i in model_output:
         tts_audio = (i['tts_speech'].numpy() * (2 ** 15)).astype(np.int16).tobytes()
         yield tts_audio
+        
+def chunk_text(text: str, max_words: int = 200) -> list[str]:
+    words = text.split()
+    chunks = []
 
+    for i in range(0, len(words), max_words):
+        chunk = " ".join(words[i:i + max_words])
+        chunks.append(chunk)
+
+    return chunks
+
+
+def collect_pcm(model_output) -> bytes:
+    pcm_chunks = []
+
+    for i in model_output:
+        pcm = (i['tts_speech'].numpy() * (2 ** 15)).astype(np.int16).tobytes()
+        pcm_chunks.append(pcm)
+
+    return b"".join(pcm_chunks)
 
 @app.get("/inference_sft")
 @app.post("/inference_sft")
@@ -194,16 +213,32 @@ async def inference_instruct2(tts_text: str = Form(), instruct_text: str = Form(
     with open(asset_wav_path, "wb") as f:
         f.write(await prompt_wav.read())
 
+    chunks = chunk_text(tts_text, max_words=200)
+
+    pcm_all = []
+
+            # 3️⃣ Inference loop
+    for chunk in chunks:
+            model_output = cosyvoice.inference_instruct2(
+                chunk,
+                instruct_text,
+                asset_wav_path
+            )
+
+            pcm = collect_pcm(model_output)
+            pcm_all.append(pcm)
+
+    final_pcm = b"".join(pcm_all)
     # -----------------------------------
     # 2️⃣ Pass FILE PATH to CosyVoice
     # -----------------------------------
-    model_output = cosyvoice.inference_instruct2(
-        tts_text,
-        instruct_text,
-        asset_wav_path   # ✅ EXACTLY like official example
-    )
+    # model_output = cosyvoice.inference_instruct2(
+    #     tts_text,
+    #     instruct_text,
+    #     asset_wav_path   # ✅ EXACTLY like official example
+    # )
    # model_output = cosyvoice.inference_instruct2(tts_text, instruct_text, speech)
-    return StreamingResponse(generate_data(model_output))
+    return StreamingResponse(iter([final_pcm]))
 
 
 def generate_wav_audio(model_output, sample_rate=22050):
